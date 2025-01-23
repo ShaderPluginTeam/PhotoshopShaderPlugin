@@ -5,7 +5,7 @@ Shader Plugin allows to process images in Photoshop with GLSL shaders. It's will
 <img src="https://github.com/user-attachments/assets/5213f779-1536-435f-848b-ddd50eeb012e" alt="Screenshot" width="60%">
 </p>
 
-**☕Support us on:** https://hellmapper.itch.io/photoshop-shader-plugin
+**☕Support us on:** https://hellmapper.itch.io/shader-plugin-for-photoshop
 
 ## Features:
 * Support 8/16/32 bit images (color and grayscale).
