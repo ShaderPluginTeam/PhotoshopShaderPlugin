@@ -1,0 +1,16 @@
+﻿<Window x:Class="ShaderPluginGUI.SplashWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShaderPluginGUI"
+        xmlns:glControl="clr-namespace:OpenTK;assembly=OpenTK.GLControl"
+        mc:Ignorable="d"
+        Title="SplashWindow" Height="0" Width="0" Visibility="Hidden" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Opacity="0" WindowStyle="None" Icon="icon.ico" Loaded="Window_Loaded">
+    <Grid>
+        <WindowsFormsHost>
+            <!-- THIS WINDOW USED ONLY FOR FIXING PHOTOSHOP + OpenTK GLControl sRGB Bug !!!-->
+            <glControl:GLControl></glControl:GLControl>
+        </WindowsFormsHost>
+    </Grid>
+</Window>

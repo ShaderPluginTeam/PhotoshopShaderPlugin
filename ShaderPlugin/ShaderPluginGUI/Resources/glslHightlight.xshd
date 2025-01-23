@@ -1,0 +1,282 @@
+﻿<?xml version="1.0"?>
+<SyntaxDefinition name="glsl" extensions=".glsl" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+	<Color name="Comment" foreground="#32ad3b" />
+	<Color name="Preprocessor" foreground="Orange"/>
+	<Color name="Punctuation" foreground="#b377ec" />
+	<Color name="MethodName" foreground="#00c0ff" />
+	<Color name="Digits" foreground="#ff39ea" />
+	<Color name="Constant" foreground="Orange" />
+	<Color name="Operators" foreground="#569cd6" />
+	<Color name="Qualifiers1" foreground="#96ccf6" />
+  <Color name="Qualifiers2" foreground="Orange" />
+	<Color name="TypeKeywords" foreground="#4ec9b0" />
+  <Color name="BuiltInVariables" foreground="#569cd6" />
+  <Color name="BuiltInFunctions" foreground="#96ccf6" />
+	<Color name="BooleanConstants" foreground="#569cd6" fontWeight="bold" />
+	<Color name="Keywords" foreground="#569cd6" />
+	<Color name="LoopKeywords" foreground="#569cd6" />
+	<Color name="JumpKeywords" foreground="#569cd6" />
+	<Color name="ControlFlow" foreground="#569cd6" />
+	<Color name="VectorProperty" foreground="#4ec9b0" />
+  
+	<RuleSet ignoreCase="false">
+    <Rule color="VectorProperty">\.([xyzw]{1,4}|[rgba]{1,4}|[stpq]{1,4})</Rule>
+    <Rule color="Punctuation">[?,.;()\[\]{}+\-/%*&lt;&gt;^=~!&amp;]</Rule>
+    
+		<Keywords color="Operators">
+			<Word>and</Word>
+			<Word>and_eq</Word>
+			<Word>bitand</Word>
+			<Word>bitor</Word>
+			<Word>new</Word>
+			<Word>not</Word>
+			<Word>not_eq</Word>
+			<Word>or</Word>
+			<Word>or_eq</Word>
+			<Word>xor</Word>
+			<Word>xor_eq</Word>
+		</Keywords>
+    
+    <Keywords color="BuiltInFunctions">
+      <Word>void</Word>
+      <Word>texture</Word>
+      <Word>texture2D</Word>
+      <Word>textureCube</Word>
+      <Word>radians</Word>
+      <Word>degrees</Word>
+      <Word>sin</Word>
+      <Word>cos</Word>
+      <Word>tan</Word>
+      <Word>asin</Word>
+      <Word>acos</Word>
+      <Word>atan</Word>
+      <Word>pow</Word>
+      <Word>exp</Word>
+      <Word>log</Word>
+      <Word>exp2</Word>
+      <Word>log2</Word>
+      <Word>sqrt</Word>
+      <Word>inversesqrt</Word>
+      <Word>abs</Word>
+      <Word>sign</Word>
+      <Word>floor</Word>
+      <Word>ceil</Word>
+      <Word>fract</Word>
+      <Word>mod</Word>
+      <Word>min</Word>
+      <Word>max</Word>
+      <Word>clamp</Word>
+      <Word>mix</Word>
+      <Word>step</Word>
+      <Word>smoothstep</Word>
+      <Word>length</Word>
+      <Word>distance</Word>
+      <Word>dot</Word>
+      <Word>cross</Word>
+      <Word>normalize</Word>
+      <Word>faceforward</Word>
+      <Word>reflect</Word>
+      <Word>refract</Word>
+      <Word>matrixCompMult</Word>
+      <Word>lessThan</Word>
+      <Word>lessThanEqual</Word>
+      <Word>greaterThan</Word>
+      <Word>greaterThanEqual</Word>
+      <Word>equal</Word>
+      <Word>notEqual</Word>
+      <Word>any</Word>
+      <Word>all</Word>
+    </Keywords>
+    
+    <Keywords color="BuiltInVariables">
+      <Word>gl_Position</Word>
+      <Word>gl_PointSize</Word>
+      <Word>gl_ClipVertex</Word>
+      <Word>gl_FragColor</Word>
+      <Word>gl_FrontFacing</Word>
+      <Word>gl_FragDepth</Word>
+      <Word>gl_FragData</Word>
+      <Word>gl_MaxDepthBuffers</Word>
+      <Word>gl_FragCoord</Word>
+
+      <Word>gl_MaxLights</Word>
+      <Word>gl_MaxClipPlanes</Word>
+      <Word>gl_MaxTextureUnits</Word>
+      <Word>gl_MaxTextureCoords</Word>
+      <Word>gl_MaxVertexAttribs</Word>
+      <Word>gl_MaxVertexUniformComponents</Word>
+      <Word>gl_MaxVaryingFloats</Word>
+      <Word>gl_MaxVertexTextureImageUnits</Word>
+      <Word>gl_MaxCombinedTextureImageUnits</Word>
+      <Word>gl_MaxTextureImageUnits</Word>
+      <Word>gl_MaxFragmentUniformComponents</Word>
+      <Word>gl_MaxDrawBuffers</Word>
+
+      <Word>gl_Color</Word>
+      <Word>gl_SecondaryColor</Word>
+      <Word>gl_Normal</Word>
+      <Word>gl_Vertex</Word>
+      <Word>gl_MultiTexCoord0</Word>
+      <Word>gl_MultiTexCoord1</Word>
+      <Word>gl_MultiTexCoord2</Word>
+      <Word>gl_MultiTexCoord3</Word>
+      <Word>gl_MultiTexCoord4</Word>
+      <Word>gl_MultiTexCoord5</Word>
+      <Word>gl_MultiTexCoord6</Word>
+      <Word>gl_MultiTexCoord7</Word>
+      <Word>gl_FogCoord</Word>
+      
+      <Word>GL_core_profile</Word>
+      <Word>GL_compatibility_profile</Word>
+    </Keywords>
+    
+		<Keywords color="Qualifiers1">
+      <Word>attribute</Word>
+      <Word>varying</Word>
+      <Word>uniform</Word>
+      <Word>in</Word>
+      <Word>out</Word>
+      <Word>inout</Word>
+      <Word>highp</Word>
+      <Word>mediump</Word>
+      <Word>lowp</Word>
+      <Word>layout</Word>
+		</Keywords>
+    
+    <Keywords color="Qualifiers2">
+      <Word>const</Word>
+      <Word>flat</Word>
+      <Word>smooth</Word>
+      <Word>noperspective</Word>
+      <Word>invariant</Word>
+      <Word>precision</Word>
+      <Word>location</Word>
+		</Keywords>
+    
+		<Keywords color="TypeKeywords">
+      <Word>float</Word>
+      <Word>double</Word>
+      <Word>bool</Word>
+      <Word>int</Word>
+      <Word>uint</Word>
+      
+			<Word>vec2</Word>
+      <Word>vec3</Word>
+      <Word>vec4</Word>
+      <Word>dvec2</Word>
+      <Word>dvec3</Word>
+      <Word>dvec4</Word>
+      <Word>bvec2</Word>
+      <Word>bvec3</Word>
+      <Word>bvec4</Word>
+      <Word>ivec2</Word>
+      <Word>ivec3</Word>
+      <Word>ivec4</Word>
+      <Word>uvec2</Word>
+      <Word>uvec3</Word>
+      <Word>uvec4</Word>
+      
+      <Word>mat2</Word>
+      <Word>mat3</Word>
+      <Word>mat4</Word>
+      <Word>mat2x2</Word>
+      <Word>mat2x3</Word>
+      <Word>mat2x4</Word>
+      <Word>mat3x2</Word>
+      <Word>mat3x3</Word>
+      <Word>mat3x4</Word>
+      <Word>mat4x2</Word>
+      <Word>mat4x3</Word>
+      <Word>mat4x4</Word>
+      
+      <Word>dmat2</Word>
+      <Word>dmat3</Word>
+      <Word>dmat4</Word>
+      <Word>dmat2x2</Word>
+      <Word>dmat2x3</Word>
+      <Word>dmat2x4</Word>
+      <Word>dmat3x2</Word>
+      <Word>dmat3x3</Word>
+      <Word>dmat3x4</Word>
+      <Word>dmat4x2</Word>
+      <Word>dmat4x3</Word>
+      <Word>dmat4x4</Word>
+      
+      <Word>sampler1D</Word>
+      <Word>sampler2D</Word>
+      <Word>sampler3D</Word>
+      <Word>samplerCube</Word>
+      <Word>sampler1DShadow</Word>
+      <Word>sampler2DShadow</Word>
+		</Keywords>
+    
+		<Keywords color="BooleanConstants">
+			<Word>false</Word>
+			<Word>true</Word>
+		</Keywords>
+    
+		<Keywords color="LoopKeywords">
+			<Word>do</Word>
+			<Word>for</Word>
+			<Word>while</Word>
+		</Keywords>
+    
+		<Keywords color="JumpKeywords">
+			<Word>break</Word>
+			<Word>continue</Word>
+			<Word>goto</Word>
+			<Word>return</Word>
+			<Word>discard</Word>
+		</Keywords>
+    
+		<Keywords color="ControlFlow">
+			<Word>case</Word>
+			<Word>else</Word>
+			<Word>if</Word>
+			<Word>switch</Word>
+			<Word>default</Word>
+      <Word>discard</Word>
+		</Keywords>
+    
+		<Keywords color="Keywords">
+			<Word>asm</Word>
+			<Word>auto</Word>
+			<Word>compl</Word>
+			<Word>mutable</Word>
+			<Word>const_cast</Word>
+			<Word>delete</Word>
+			<Word>dynamic_cast</Word>
+			<Word>explicit</Word>
+			<Word>export</Word>
+			<Word>extern</Word>
+			<Word>inline</Word>
+			<Word>int</Word>
+			<Word>long</Word>
+			<Word>operator</Word>
+			<Word>register</Word>
+			<Word>reinterpret_cast</Word>
+			<Word>sizeof</Word>
+			<Word>static_cast</Word>
+			<Word>template</Word>
+			<Word>typedef</Word>
+			<Word>typeid</Word>
+			<Word>typename</Word>
+		</Keywords>
+
+		<Span color="Preprocessor">
+			<Begin>\#</Begin>
+		</Span>
+    
+		<Span color="Comment">
+			<Begin>//</Begin>
+		</Span>
+    
+		<Span color="Comment" multiline="true">
+			<Begin>/\*</Begin>
+			<End>\*/</End>
+		</Span>
+    
+		<Rule color="MethodName">[\d\w_]+(?=(\s*\())</Rule>
+		<Rule color="Digits">\b0[xX][0-9a-fA-F]+|(\b\d+(\.[0-9]+)?|\.[0-9]+)([eE][+-]?[0-9]+)?[fF]?</Rule>
+	</RuleSet>
+</SyntaxDefinition>

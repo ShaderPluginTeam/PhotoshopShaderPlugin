@@ -1,0 +1,809 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShaderPluginGUI"
+        xmlns:glControl="clr-namespace:OpenTK;assembly=OpenTK.GLControl"
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="ShaderPluginGUI.MainWindow"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=PresentationFramework"
+        mc:Ignorable="d" Title="Shader Plugin" Width="900" Height="600" MinWidth="480" MinHeight="320" WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" Icon="icon.ico" Background="{DynamicResource BackgroundBrushNormal}"
+        Loaded="Window_Loaded" StateChanged="Window_StateChanged" SizeChanged="Window_SizeChanged" Closing="Window_Closing" >
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/Theme.xaml"/>
+                <ResourceDictionary Source="Styles/ToolBarStyle.xaml"/>
+                <ResourceDictionary Source="Styles/ScrollBarStyle.xaml"/>
+                <ResourceDictionary Source="Styles/TabControlStyle.xaml"/>
+                <ResourceDictionary Source="Styles/ButtonStyle.xaml"/>
+                <ResourceDictionary Source="Styles/LabelStyle.xaml"/>
+                <ResourceDictionary Source="Styles/CheckBoxStyle.xaml"/>
+                <ResourceDictionary Source="Styles/GroupBoxStyle.xaml"/>
+                <ResourceDictionary Source="Styles/TextBoxStyle.xaml"/>
+                <ResourceDictionary Source="Styles/ComboBoxStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="Button_New_Click" />
+        <CommandBinding Command="Open" Executed="Button_Open_Click" />
+        <CommandBinding Command="SaveAs" Executed="Button_Save_Click" />
+        <CommandBinding Command="local:MainWindow.CopyImage" Executed="Button_Copy_Click" />
+        <CommandBinding Command="local:MainWindow.PasteImage" Executed="Button_Paste_Click" />
+        <CommandBinding Command="Help" Executed="Button_About_Click" />
+    </Window.CommandBindings>
+
+    <Window.InputBindings>
+        <KeyBinding Command="New" Gesture="Ctrl+N" />
+        <KeyBinding Command="Open" Gesture="Ctrl+O" />
+        <KeyBinding Command="SaveAs" Gesture="Ctrl+S" />
+        <KeyBinding Command="local:MainWindow.CopyImage" Gesture="Ctrl+Shift+C" />
+        <KeyBinding Command="local:MainWindow.PasteImage" Gesture="Ctrl+Shift+V" />
+        <KeyBinding Command="Help" Gesture="F1" />
+    </Window.InputBindings>
+
+    <Grid>
+        <DockPanel>
+            <StatusBar x:Name="statusBar" HorizontalAlignment="Stretch" Background="{DynamicResource BackgroundBrushSelected}" DockPanel.Dock="Bottom" Height="24" VerticalAlignment="Bottom" Foreground="WhiteSmoke" MouseDown="StatusBar_MouseDown">
+                <StatusBarItem>
+                    <TextBlock Name="statusBarError" TextTrimming="WordEllipsis" />
+                </StatusBarItem>
+            </StatusBar>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="100*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="60*"/>
+                </Grid.ColumnDefinitions>
+                <Border BorderBrush="{DynamicResource BorderBrushNormal}" BorderThickness="0,0,0,1" Height="Auto">
+                    <ToolBar HorizontalAlignment="Stretch" DockPanel.Dock="Top" Grid.Row="0" Height="37">
+
+                        <Button ToolTip="New shader   Ctrl+N" Command="New" TabIndex="2">
+                            <Image Source="Resources/Icons/New.png" />
+                        </Button>
+                        <Button ToolTip="Open shader   Ctrl+O" Command="Open"   TabIndex="3">
+                            <Image Source="Resources/Icons/Open.png"  />
+                        </Button>
+                        <Button ToolTip="Save shader   Ctrl+S" Command="SaveAs"  TabIndex="4">
+                            <Image Source="Resources/Icons/Save.png"  />
+                        </Button>
+                        <Separator Background="#FF5D5D5D"/>
+                        <Button  ToolTip="Undo   Ctrl+Z" Command="Undo"  TabIndex="5">
+                            <Image Source="Resources/Icons/Undo.png"  />
+                        </Button>
+                        <Button ToolTip="Redo   Ctrl+Y" Command="Redo"  TabIndex="6">
+                            <Image Source="Resources/Icons/Redo.png" />
+                        </Button>
+                        <Separator Background="#FF5D5D5D"/>
+                        <Button ToolTip="Copy Image   Ctrl+Shift+C" Command="local:MainWindow.CopyImage"   TabIndex="7">
+                            <Image Source="Resources/Icons/Copy.png"  />
+                        </Button>
+                        <Button ToolTip="Paste Image   Ctrl+Shift+V" Command="local:MainWindow.PasteImage"   TabIndex="8">
+                            <Image Source="Resources/Icons/Paste.png" />
+                        </Button>
+                        <Separator Background="#FF5D5D5D"/>
+                        <Button ToolTip="About...   F1" Command="Help"  TabIndex="9">
+                            <Image Source="Resources/Icons/Help.png"   />
+                        </Button>
+                    </ToolBar>
+                </Border>
+                <WindowsFormsHost x:Name="GLControlHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="0" Background="#FF2D2D2D">
+                    <glControl:GLControl
+                        x:Name="glControl"
+                        Load="GlControl_Load"
+                        HandleDestroyed="GlControl_HandleDestroyed"
+                        MouseDown="GlControl_MouseDown"
+                        MouseUp="GlControl_MouseUp"
+                        MouseMove="GlControl_MouseMove"
+                        MouseWheel="GlControl_MouseWheel"
+                        Resize="GlControl_Resize"
+                        Paint="GlControl_Paint"/>
+                </WindowsFormsHost>
+
+                <Popup x:Name="popup_ColorPicker" Placement="Relative" AllowsTransparency="True">
+                    <Grid Background="#CCB9B6FF">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="100*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="1"/>
+                            <ColumnDefinition Width="40"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock HorizontalAlignment="Center" Padding="5,5,5,0" Grid.Row="0" Grid.Column="0">0..1</TextBlock>
+                        <TextBlock x:Name="textBlock_ColorPicker1" Padding="5,3,5,5" Grid.Row="1" Grid.Column="0"/>
+                        <Rectangle Fill="#FFB9B6FF" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"/>
+                        <TextBlock HorizontalAlignment="Center" Padding="5,5,5,0" Grid.Row="0" Grid.Column="2">0..255</TextBlock>
+                        <TextBlock x:Name="textBlock_ColorPicker2" Padding="5,3,5,5" Grid.Row="1" Grid.Column="2"/>
+                    </Grid>
+                </Popup>
+
+                <GridSplitter HorizontalAlignment="Stretch" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Stretch" Width="2" Background="{DynamicResource GridSplitBrush}"/>
+
+                <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="31*"/>
+                        <RowDefinition Height="42"/>
+                    </Grid.RowDefinitions>
+                    <TabControl Name="tabControlMain" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="0" SelectedIndex="4" TabIndex="-4" SelectionChanged="TabControlMain_SelectionChanged">
+                        <TabItem Name="tabItemBufferA"  Header="Buf A" FontFamily="Tahoma">
+                            <TabControl Name="tabControlBufferA" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectedIndex="1">
+                                <TabItem Header="Vertex Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorBufferA_VS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Fragment Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorBufferA_FS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Buffer Preferences" FontFamily="Tahoma">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                        <StackPanel>
+                                            <GroupBox Name="groupBox_BufferA_OriginalImage" Header="Original Image" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferA_ImageMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferA_ImageMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferA_ImageWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferA_ImageWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </TabItem>
+                            </TabControl>
+                        </TabItem>
+                        <TabItem Name="tabItemBufferB"  Header="Buf B" FontFamily="Tahoma">
+                            <TabControl Name="tabControlBufferB" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectedIndex="1">
+                                <TabItem Header="Vertex Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorBufferB_VS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Fragment Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorBufferB_FS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Buffer Preferences" FontFamily="Tahoma">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                        <StackPanel>
+                                            <GroupBox Name="groupBox_BufferB_OriginalImage" Header="Original Image" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferB_ImageMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferB_ImageMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferB_ImageWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferB_ImageWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_BufferB_BufferA" Header="Buffer A" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferB_BufferAMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferB_BufferAMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferB_BufferAWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferB_BufferAWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </TabItem>
+                            </TabControl>
+                        </TabItem>
+                        <TabItem Name="tabItemBufferC"  Header="Buf C" FontFamily="Tahoma">
+                            <TabControl Name="tabControlBufferC" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectedIndex="1">
+                                <TabItem Header="Vertex Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorBufferC_VS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Fragment Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorBufferC_FS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Buffer Preferences" FontFamily="Tahoma">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                        <StackPanel>
+                                            <GroupBox Name="groupBox_BufferC_OriginalImage" Header="Original Image" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_ImageMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_ImageMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_ImageWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_ImageWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_BufferC_BufferA" Header="Buffer A" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_BufferAMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_BufferAMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_BufferAWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_BufferAWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_BufferC_BufferB" Header="Buffer B" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_BufferBMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_BufferBMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_BufferBWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferC_BufferBWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </TabItem>
+                            </TabControl>
+                        </TabItem>
+                        <TabItem Name="tabItemBufferD"  Header="Buf D" FontFamily="Tahoma">
+                            <TabControl Name="tabControlBufferD" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectedIndex="1">
+                                <TabItem Header="Vertex Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorBufferD_VS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Fragment Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorBufferD_FS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Buffer Preferences" FontFamily="Tahoma">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                        <StackPanel>
+                                            <GroupBox Name="groupBox_BufferD_OriginalImage" Header="Original Image" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_ImageMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_ImageMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_ImageWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_ImageWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_BufferD_BufferA" Header="Buffer A" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferAMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferAMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferAWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferAWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_BufferD_BufferB" Header="Buffer B" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferBMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferBMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferBWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferBWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_BufferD_BufferC" Header="Buffer C" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                        <RowDefinition Height="24"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferCMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="1"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferCMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferCWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_BufferD_BufferCWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </TabItem>
+                            </TabControl>
+                        </TabItem>
+                        <TabItem Name="tabItemImage"    Header="Image" FontFamily="Tahoma">
+                            <TabControl Name="tabControlImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectedIndex="1">
+                                <TabItem Header="Vertex Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorImage_VS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Fragment Shader" FontFamily="Tahoma">
+                                    <avalonEdit:TextEditor x:Name="textEditorImage_FS" ShowLineNumbers="True" FontFamily="Consolas" FontSize="12pt" Background="{DynamicResource TextEditorBackgroundBrush}" LineNumbersForeground="#FF738795" Foreground="Gainsboro" TextChanged="TextEditor_TextChanged">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="Cut" Header="Cut" />
+                                                <MenuItem Command="Copy" Header="Copy" />
+                                                <MenuItem Command="Paste" Header="Paste" />
+                                                <MenuItem Command="Delete" Header="Delete" />
+                                                <MenuItem Command="Undo" Header="Undo" />
+                                                <MenuItem Command="Redo" Header="Redo" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </TabItem>
+                                <TabItem Header="Shader Preferences" FontFamily="Tahoma">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Padding="5">
+                                        <StackPanel>
+                                            <Grid Margin="0, 8,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto" />
+                                                    <ColumnDefinition Width="3" />
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions> 
+                                                <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Additional Buffers:</Label>
+                                                <ComboBox Name="comboBox_Image_Buffers" SelectionChanged="ComboBox_Image_Buffers_SelectionChanged" Grid.Row="0" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+                                            </Grid>
+                                            <GroupBox Name="groupBox_Image_OriginalImage" Header="Original Image" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="5" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_ImageMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="2"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_ImageMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_Image_ImageWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_Image_ImageWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_Image_BufferA" Header="Buffer A" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="5" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferAMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="2"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferAMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferAWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferAWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_Image_BufferB" Header="Buffer B" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="5" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferBMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="2"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferBMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferBWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferBWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_Image_BufferC" Header="Buffer C" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="5" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferCMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="2"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferCMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferCWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferCWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                            <GroupBox Name="groupBox_Image_BufferD" Header="Buffer D" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="5" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                        <RowDefinition Height="28"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferDMagFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="0" Grid.Column="2"  VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferDMinFilter" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar S:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferDWrapS" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                                    <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Texture Wpar T:</Label>
+                                                    <ComboBox Name="comboBox_Image_BufferDWrapT" SelectionChanged="ComboBox_TextureParameters_Changed" Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+                                                </Grid>
+                                            </GroupBox>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </TabItem>
+                            </TabControl>
+                        </TabItem>
+                        <TabItem Header="Settings" FontFamily="Tahoma">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Padding="5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="5" />
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="32"/>
+                                        <RowDefinition Height="32"/>
+                                        <RowDefinition Height="32"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="100*"/>
+                                    </Grid.RowDefinitions>
+                                    <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">View Mode:</Label>
+                                    <ComboBox Name="comboBox_ViewMode" SelectionChanged="ComboBox_ViewMode_SelectionChanged" Grid.Row="0" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                    <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Magnification Filter:</Label>
+                                    <ComboBox Name="comboBox_MagFilter" SelectionChanged="ComboBox_MagFilter_SelectionChanged" Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                    <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" Padding="5,0" Height="24" VerticalContentAlignment="Center">Minification Filter:</Label>
+                                    <ComboBox Name="comboBox_MinFilter" SelectionChanged="ComboBox_MinFilter_SelectionChanged" Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Height="24"/>
+
+                                    <CheckBox Name="checkBox_sRGB" Grid.Row="3" Grid.Column="2"
+                                          Checked="CheckBox_sRGB_StateChanged" Unchecked="CheckBox_sRGB_StateChanged">
+                                        Use sRGB Framebuffer (usefull for 32-bits images)
+                                    </CheckBox>
+
+                                    <CheckBox Name="checkBox_MipMaps" Grid.Row="4" Grid.Column="2"
+                                          Checked="CheckBox_MipMaps_StateChanged" Unchecked="CheckBox_MipMaps_StateChanged">
+                                        Use MipMaps
+                                    </CheckBox>
+
+                                    <Label HorizontalAlignment="Right" Grid.Row="5" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Preview Line Color:</Label>
+                                    <Rectangle Name="rectangle_PreviewLineColor" HorizontalAlignment="Left" Width="24" Height="24" Fill="Gray" Grid.Row="5" Grid.Column="2"
+                                           MouseLeftButtonDown="Rectangle_PreviewLineColor_MouseLeftButtonDown" />
+
+                                    <Label HorizontalAlignment="Right" Grid.Row="6" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Background Color:</Label>
+                                    <Rectangle Name="rectangle_BGColor" HorizontalAlignment="Left" Width="24" Height="24" Fill="Gray" Grid.Row="6" Grid.Column="2"
+                                           MouseLeftButtonDown="Rectangle_BGColor_MouseLeftButtonDown" VerticalAlignment="Top"/>
+
+                                    <Label HorizontalAlignment="Right" Grid.Row="7" Grid.Column="0" Height="24" VerticalAlignment="Top" VerticalContentAlignment="Center">Grid Colors:</Label>
+                                    <Rectangle Name="rectangle_GridColor1" HorizontalAlignment="Left" Width="24" Height="24" Fill="Gray" Grid.Row="7" Grid.Column="2"
+                                           MouseLeftButtonDown="Rectangle_GridColor1_MouseLeftButtonDown" VerticalAlignment="Top"/>
+                                    <Rectangle Name="rectangle_GridColor2" HorizontalAlignment="Left" Width="24" Height="24" Fill="Gray" Grid.Row="7" Grid.Column="2" Margin="30, 0, 0, 0"
+                                           MouseLeftButtonDown="Rectangle_GridColor2_MouseLeftButtonDown" VerticalAlignment="Top"/>
+                                    <Label HorizontalAlignment="Right" Grid.Row="8" Grid.Column="0">Grid Size:</Label>
+                                    <TextBox x:Name="tbGridSize" Grid.Row="8" Grid.Column="2" Height="24" VerticalContentAlignment="Center" Width="24" HorizontalAlignment="Left" HorizontalContentAlignment="Center" PreviewTextInput="TbGridSize_PreviewTextInput" DataObject.Pasting="PastingHandler" TextChanged="TbGridSize_TextChanged">20</TextBox>
+
+                                    <Button Grid.Row="9" Grid.Column="2" Click="BtnSaveSettings_Click" Style="{StaticResource RoundCorner}" VerticalAlignment="Top" Padding="1" Margin="0,9" Height="32" Width="96" HorizontalAlignment="Left">Save Settings</Button>
+                                    <Button Grid.Row="10" Grid.Column="2" Click="BtnDefaultSettings_Click" Style="{StaticResource RoundCorner}" VerticalAlignment="Top" Padding="1" Margin="0,2" Height="32" Width="96" HorizontalAlignment="Left">Default Settings</Button>
+                                </Grid>
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="100*"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="btnCompile" Style="{DynamicResource PSPluginButtonOK}" Content="Compile" Height="32" VerticalAlignment="Center" Width="75" Grid.Column="0" Margin="5" Click="BtnCompile_Click" Foreground="WhiteSmoke" TabIndex="11"/>
+                        <Button x:Name="btnApply"   Style="{DynamicResource PSPluginButtonOK}" Content="Apply"   Height="32" VerticalAlignment="Center" Width="75" Grid.Column="2" Margin="5" Click="BtnApply_Click" Foreground="WhiteSmoke" TabIndex="0"/>
+                        <Button x:Name="btnCancel"  Style="{DynamicResource PSPluginButtonCancel}" Content="Cancel"  Height="32" VerticalAlignment="Center" Width="75" Grid.Column="3" Margin="5" Click="BtnCancel_Click" Foreground="WhiteSmoke" TabIndex="1"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,137 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:ShaderPluginGUI">
+
+    <Color x:Key="BorderNormal">#FF454545</Color>
+    <Color x:Key="BorderPressed">#FF393939</Color>
+    <Color x:Key="BackgroundNormal">#FF535353</Color>
+    <Color x:Key="BackgroundSelected">#FF363636</Color>
+    <Color x:Key="GridSplitLight">#FF636363</Color>
+    <Color x:Key="DisabledForeground" R="170" G="170" B="170" A="170"/>
+    <Color x:Key="UnselectedForeground" R="170" G="170" B="170" A="255"/>
+
+    <Color x:Key="PSButtonBorderNormal">#FFe1e1e1</Color>
+    <Color x:Key="PSButtonCancelBorderNormal">#FF6b6b6b</Color>
+    <Color x:Key="PSButtonBorderFocused">#FF4971CD</Color>
+    <Color x:Key="PSButtonBorderPressed">#FF3c5ba2</Color>
+
+
+    <Color x:Key="PSButtonBackgroundPressed">#FFe1e1e1</Color>
+    <Color x:Key="PSButtonCancelBackgroundPressed">#FF7d7d7d</Color>
+    <Color x:Key="PSButtonBackgroundHover">#FF585858</Color>
+
+    <Color x:Key="ToolBarGradientLine_MouseOver">#939393</Color>
+    <Color x:Key="ToolBarGradientUp_MouseOver">#707070</Color>
+    <Color x:Key="ToolBarGradientDown_MouseOver">#585858</Color>
+
+    <Color x:Key="ToolBarGradientLine_Focused">#838383</Color>
+    <Color x:Key="ToolBarGradientUp_Focused">#656565</Color>
+    <Color x:Key="ToolBarGradientDown_Focused">#565656</Color>
+
+    <SolidColorBrush x:Key="PSButtonForegroundBrush" Color="#FF000000"/>
+    <SolidColorBrush x:Key="TextEditorBackgroundBrush" Color="#FF1E1E1E"/>
+
+    <GradientStopCollection x:Key="PSScrollBarBackgroundStops">
+        <GradientStop Color="#FF333333" Offset="0"/>
+        <GradientStop Color="#FF434343" Offset="0.3125"/>
+        <GradientStop Color="#FF3B3B3B" Offset="0.99"/>
+    </GradientStopCollection>
+
+    <GradientStopCollection x:Key="PSScrollBarThumbStops">
+        <GradientStop Color="#FF9a9a9a" Offset="1"/>
+        <GradientStop Color="#FF8b8b8b" Offset="0.99"/>
+        <GradientStop Color="#FF6b6b6b" Offset="0"/>
+    </GradientStopCollection>
+
+
+    <GradientStopCollection x:Key="PSScrollBarLineButtonStops">
+        <GradientStop Color="#5e5e5e" Offset="1"/>
+        <GradientStop Color="#5e5e5e" Offset="0.95"/>
+        <GradientStop Color="#4e4e4e" Offset="0.94"/>
+        <GradientStop Color="#4a4a4a" Offset="0"/>
+    </GradientStopCollection>
+
+    <LinearGradientBrush  x:Key="PSTabItemNormalBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FF4a4a4a"/>
+        <GradientStop Color="#FF363636" Offset="1"/>
+        <GradientStop Color="#FF4a4a4a" Offset="0.03"/>
+        <GradientStop Color="#FF363636" Offset="0.032"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="PSTabItemHoverBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FF4a4a4a"/>
+        <GradientStop Color="#FF454545" Offset="1"/>
+        <GradientStop Color="#FF4a4a4a" Offset="0.03"/>
+        <GradientStop Color="#FF454545" Offset="0.032"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="PSTabItemSelectedBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FF6A6A6A"/>
+        <GradientStop Color="#FF535353" Offset="1"/>
+        <GradientStop Color="#FF6A6A6A" Offset="0.03"/>
+        <GradientStop Color="#FF535353" Offset="0.032"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="PSRoundButtonHover" EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FF565656" Offset="1"/>
+        <GradientStop Color="#FF717171" Offset="0.047"/>
+        <GradientStop Color="#FF939393"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="PSRoundButtonSelected" EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FF565656" Offset="1"/>
+        <GradientStop Color="#FF717171" Offset="0.047"/>
+        <GradientStop Color="#FF939393"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush  x:Key="GridSplitBrush" EndPoint="0,0" StartPoint="1,0">
+        <GradientStop Color="{StaticResource BorderNormal}" Offset="0.499"/>
+        <GradientStop Color="{StaticResource GridSplitLight}" Offset="0.5"/>
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="PSScrollBorderBrush" Color="#FF3a3a3a"/>
+    <SolidColorBrush x:Key="TransparentBrush">#00000000</SolidColorBrush>
+    <SolidColorBrush x:Key="ForegroundBrush">#FFDDDDDD</SolidColorBrush>
+
+    <SolidColorBrush x:Key="DisabledForegroundBrush" Color="{StaticResource DisabledForeground}" />
+    <SolidColorBrush x:Key="UnselectedForegroundBrush" Color="{StaticResource UnselectedForeground}" />
+    <SolidColorBrush x:Key="BorderBrushNormal" Color="{StaticResource BorderNormal}"/>
+    <SolidColorBrush x:Key="BorderBrushPressed" Color="{StaticResource BorderPressed}"/>
+    <SolidColorBrush x:Key="BackgroundBrushNormal" Color="{StaticResource BackgroundNormal}"/>
+    <SolidColorBrush x:Key="BackgroundBrushSelected" Color="{StaticResource BackgroundSelected}"/>
+
+
+    <Color x:Key="GlyphColor">#FFDDDDDD</Color>
+    <Color x:Key="GlyphMouseOver">sc#1, 0.004391443, 0.002428215, 0.242281124</Color>
+
+    <Color x:Key="ControlMouseOverColor">#FF444444</Color>
+    <Color x:Key="ControlPressedColor">#FF333333</Color>
+
+    <Color x:Key="PressedBorderLightColor">#FF888888</Color>
+    <Color x:Key="PressedBorderDarkColor">#FF444444</Color>
+
+    <Color x:Key="BorderLightColor">#FF666666</Color>
+    <Color x:Key="BorderMediumColor">#FF444444</Color>
+    <Color x:Key="BorderDarkColor">#FF333333</Color>
+
+    <Color x:Key="GroupBoxBackgroundColor">#FF454545</Color>
+    <SolidColorBrush x:Key="GroupBoxBackground" Color="{StaticResource GroupBoxBackgroundColor}" />
+
+    <Color x:Key="GroupBoxHeaderBackgroundColor">#FF404040</Color>
+    <SolidColorBrush x:Key="GroupBoxHeaderBackground" Color="{StaticResource GroupBoxHeaderBackgroundColor}" />
+
+    <Color x:Key="ComboBoxHeaderBackgroundColor">#FF303030</Color>
+    <Color x:Key="ComboBoxHeaderBorderColor">#FF808080</Color>
+
+    <Color x:Key="ControlLightColor">#FF303030</Color>
+    <Color x:Key="ControlMediumColor">#FF404040</Color>
+    <Color x:Key="ControlDarkColor">#FF404040</Color>
+
+    <Color x:Key="SelectedBackgroundColor">#FF505050</Color>
+    <Color x:Key="SelectedUnfocusedColor">#FF454545</Color>
+
+    <Color x:Key="DisabledControlLightColor">#FFE8EDF9</Color>
+    <Color x:Key="DisabledControlDarkColor">#FFC5CBF9</Color>
+    <Color x:Key="DisabledBorderDarkColor">#FFC5CBF9</Color> 
+    
+</ResourceDictionary>
