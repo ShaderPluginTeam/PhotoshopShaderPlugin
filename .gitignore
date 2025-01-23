@@ -27,7 +27,6 @@ bld/
 [Ll]og/
 [Tt]ools/
 # [Oo]utput/
-![Pp]recompiled/**
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -265,3 +264,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+
+# Ignore all
+![Pp]recompiled/**
