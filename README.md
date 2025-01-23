@@ -1,8 +1,8 @@
-# Photoshop Shader Plugin
+# Shader Plugin for Photoshop
 Shader Plugin allows to process images in Photoshop with GLSL shaders. It's will be usefull for technical artists for creation shader effects, masks, noise textures in Photoshop. Also you can process images with multipass filters like FXAA (by NVIDIA) inside Photoshop!!!
 
 <p align="center">
-<img src="https://github.com/user-attachments/assets/222bfd03-eb0a-4b17-9ef5-d1d2bb718f45" alt="Screenshot" width="60%">
+<img src="https://github.com/user-attachments/assets/5213f779-1536-435f-848b-ddd50eeb012e" alt="Screenshot" width="60%">
 </p>
 
 **☕Support us on:** https://hellmapper.itch.io/photoshop-shader-plugin
@@ -24,9 +24,10 @@ Photoshop CS5+ (tested on CS6 .. 2022)\
 MIT
 
 ## Where to find full Plugin Sources (why C# and CLR part only)?
-ADOBE® PHOTOSHOP® SDK License Agreement restrict to distribute SDK parts (include modified) as code.
-This makes unavailable to share c++ part( The biggest problem: they use custom build tool and process for generating resources.
-Anybody can download SDK from Adobe site, but we can't share sources which use this SDK: any Photoshop C++ Plugin require resource files from SDK Samples when building.
+ADOBE® PHOTOSHOP® SDK License Agreement restrict to distribute SDK parts (include modified) as code.\
+This makes unavailable to share c++ part.\
+The biggest problem: they use custom build tool and process for generating resources.\
+Anybody can download SDK from Adobe site, but we can't share sources which use this SDK: any Photoshop C++ Plugin require resource files from SDK Samples when building.\
 Any way you can use it without problems.
 
 ## Authors:
