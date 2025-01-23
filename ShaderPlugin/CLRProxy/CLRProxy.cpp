@@ -1,5 +1,5 @@
 #pragma once
-#include "CLIProxy.h"
+#include "CLRProxy.h"
 
 using namespace System;
 using namespace System::IO;
